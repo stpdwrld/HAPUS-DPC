@@ -1,28 +1,31 @@
-name: Hapus Duplikat
+name: Hapus Duplikat proxies.txt ke output.txt
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'  # Setiap hari jam 03:00 UTC
 
 jobs:
   hapus-duplikat:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Hapus duplikat dari file proxies.txt
+      - name: Hapus duplikat dan simpan ke output.txt
         run: |
-          sort -u proxies.txt -o proxies.txt
+          sort proxies.txt | uniq > output.txt
 
-      - name: Commit perubahan jika ada
+      - name: Commit dan push jika ada perubahan
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [[ `git status --porcelain` ]]; then
-            git add proxies.txt
-            git commit -m "Hapus baris duplikat dari proxies.txt"
+            git add output.txt
+            git commit -m "Auto: Hapus duplikat dan simpan ke output.txt"
             git push
           else
             echo "Tidak ada perubahan"
