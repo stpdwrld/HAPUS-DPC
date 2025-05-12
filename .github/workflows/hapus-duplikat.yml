@@ -1,0 +1,29 @@
+name: Hapus Duplikat
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  hapus-duplikat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Hapus duplikat dari file proxies.txt
+        run: |
+          sort -u proxies.txt -o proxies.txt
+
+      - name: Commit perubahan jika ada
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ `git status --porcelain` ]]; then
+            git add proxies.txt
+            git commit -m "Hapus baris duplikat dari proxies.txt"
+            git push
+          else
+            echo "Tidak ada perubahan"
+          fi
